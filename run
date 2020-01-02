@@ -1,0 +1,35 @@
+#!/usr/bin/env php
+<?php
+
+require 'vendor/autoload.php';
+
+use Goutte\Client;
+
+$name = '斗罗大陆';
+$author = '唐家三少';
+$cover = 'cover.jpeg';
+$next = 'http://www.wangshugu.com/books/0/182/2362600.html';
+$count = 1;
+
+$client = new Client();
+
+do {
+    $crawler = $client->request('GET', $next);
+
+    $title = $crawler->filter('#amain > dl > dd > h1')->text();
+    $content = $crawler->filter('#contents')->html();
+    $next = $crawler->filter('#footlink')->children('a')->last()->link()->getUri();
+    $text = sprintf("<h1>%s</h1>\n\n%s\n\n", $title, $content);
+
+    file_put_contents("resources/$name.html", $text, FILE_APPEND);
+
+    echo "$count - $title\n";
+
+    $count++;
+} while (true);
+
+echo "Done Crawling ($count)\n\n";
+
+$cmd = "pandoc resources/$name.html -f html -t epub -s -o resources/$name.epub -M title:$name -M author:$author --epub-cover-image=resources/$cover --trace";
+
+passthru($cmd);
