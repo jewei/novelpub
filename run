@@ -18,11 +18,11 @@ try {
         $crawler = $client->request('GET', $next);
 
         $title = $crawler->filter('#amain > dl > dd > h1')->text();
-        $content = $crawler->filter('#contents')->html();
+        $body = $crawler->filter('#contents')->html();
         $next = $crawler->filter('#footlink')->children('a')->last()->link()->getUri();
-        $text = sprintf("<h1>%s</h1>\n\n%s\n\n", $title, $content);
+        $content = sprintf("<h1>%s</h1>\n\n%s\n\n", $title, $body);
 
-        file_put_contents("resources/$name.html", $text, FILE_APPEND);
+        file_put_contents("resources/$name.html", $content, FILE_APPEND);
 
         echo "$page_counter - $title\n";
 
