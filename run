@@ -5,30 +5,34 @@ require 'vendor/autoload.php';
 
 use Goutte\Client;
 
-$name = '斗罗大陆';
-$author = '唐家三少';
-$cover = 'cover.jpeg';
-$next = 'http://www.wangshugu.com/books/0/182/2362600.html';
-$count = 1;
+$name = '元尊';
+$author = '天蚕土豆';
+$cover = 'cover.jpg';
+$next = 'http://www.wangshugu.com/books/76/76314/28933238.html';
+$page_counter = 1;
 
 $client = new Client();
 
-do {
-    $crawler = $client->request('GET', $next);
+try {
+    do {
+        $crawler = $client->request('GET', $next);
 
-    $title = $crawler->filter('#amain > dl > dd > h1')->text();
-    $content = $crawler->filter('#contents')->html();
-    $next = $crawler->filter('#footlink')->children('a')->last()->link()->getUri();
-    $text = sprintf("<h1>%s</h1>\n\n%s\n\n", $title, $content);
+        $title = $crawler->filter('#amain > dl > dd > h1')->text();
+        $content = $crawler->filter('#contents')->html();
+        $next = $crawler->filter('#footlink')->children('a')->last()->link()->getUri();
+        $text = sprintf("<h1>%s</h1>\n\n%s\n\n", $title, $content);
 
-    file_put_contents("resources/$name.html", $text, FILE_APPEND);
+        file_put_contents("resources/$name.html", $text, FILE_APPEND);
 
-    echo "$count - $title\n";
+        echo "$page_counter - $title\n";
 
-    $count++;
-} while (true);
+        $page_counter++;
+    } while (true);
+} catch (\Throwable $th) {
 
-echo "Done Crawling ($count)\n\n";
+}
+
+echo "Done Crawling ($page_counter)\n\n";
 
 $cmd = "pandoc resources/$name.html -f html -t epub -s -o resources/$name.epub -M title:$name -M author:$author --epub-cover-image=resources/$cover --trace";
 
